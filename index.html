@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keynova Lock</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #faf9f7;
+      --bg-secondary: #f0eee9;
+      --bg-card: #ffffff;
+      --text-primary: #1a1a2e;
+      --text-secondary: #555570;
+      --text-muted: #8888a0;
+      --accent: #c0392b;
+      --accent-hover: #a93226;
+      --accent-glow: rgba(192, 57, 43, 0.15);
+      --accent-secondary: #2c3e50;
+      --border: #e0ddd6;
+      --border-active: #c0392b;
+      --success: #27ae60;
+      --success-bg: rgba(39, 174, 96, 0.08);
+      --error: #c0392b;
+      --error-bg: rgba(192, 57, 43, 0.08);
+      --code-bg: #1a1a2e;
+      --code-text: #a8e6cf;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
+      --radius: 12px;
+      --radius-lg: 16px;
+    }
+
+    .dark {
+      --bg-primary: #0d0d1a;
+      --bg-secondary: #151528;
+      --bg-card: #1a1a30;
+      --text-primary: #e8e6e1;
+      --text-secondary: #a0a0b8;
+      --text-muted: #6a6a80;
+      --accent: #e74c3c;
+      --accent-hover: #ff6b5a;
+      --accent-glow: rgba(231, 76, 60, 0.2);
+      --accent-secondary: #ecf0f1;
+      --border: #2a2a45;
+      --border-active: #e74c3c;
+      --success: #2ecc71;
+      --success-bg: rgba(46, 204, 113, 0.12);
+      --error: #e74c3c;
+      --error-bg: rgba(231, 76, 60, 0.12);
+      --code-bg: #0a0a18;
+      --code-text: #7fdbca;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.3);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .bg-pattern {
+      position: fixed; inset: 0; z-index: 0; opacity: 0.03;
+      background-image:
+        radial-gradient(circle at 20% 30%, var(--accent) 1px, transparent 1px),
+        radial-gradient(circle at 80% 70%, var(--accent) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative; z-index: 1;
+      max-width: 680px; margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    /* Header */
+    .header { text-align: center; padding: 32px 0 24px; animation: fadeInDown 0.6s ease-out; }
+
+    .header-icon {
+      width: 72px; height: 72px; margin: 0 auto 16px;
+      background: linear-gradient(135deg, var(--accent), #8e44ad);
+      border-radius: 20px; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 24px rgba(192, 57, 43, 0.25);
+      position: relative; overflow: hidden;
+    }
+
+    .header-icon::before {
+      content: ''; position: absolute; inset: 2px; border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    }
+
+    .header-icon svg { width: 36px; height: 36px; fill: white; position: relative; z-index: 1; }
+
+    .header h1 {
+      font-size: 28px; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), #8e44ad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .header p { font-size: 15px; color: var(--text-secondary); margin-top: 6px; font-weight: 500; }
+
+    /* Sections */
+    .section {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px;
+      box-shadow: var(--shadow-sm); animation: fadeInUp 0.5s ease-out both;
+    }
+
+    .section:nth-child(2) { animation-delay: 0.1s; }
+    .section:nth-child(3) { animation-delay: 0.2s; }
+
+    .section-title {
+      font-size: 17px; font-weight: 700; color: var(--text-primary);
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+
+    .section-title .icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    .section-title .icon.purple { background: rgba(142, 68, 173, 0.12); }
+    .section-title .icon.red { background: rgba(192, 57, 43, 0.12); }
+
+    /* Image Grid */
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+      gap: 10px; margin-bottom: 16px;
+    }
+
+    .image-item {
+      aspect-ratio: 1; border-radius: 10px; cursor: pointer;
+      border: 2.5px solid var(--border); overflow: hidden;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; background: var(--bg-secondary);
+    }
+
+    .image-item:hover {
+      border-color: var(--text-muted); transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .image-item.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow), var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .image-item.selected::after {
+      content: '✓'; position: absolute; top: 4px; left: 4px;
+      width: 22px; height: 22px; background: var(--accent); color: white;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; z-index: 2;
+    }
+
+    .image-item img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: opacity 0.3s ease;
+    }
+
+    .image-item img.loading { opacity: 0; }
+    .image-item img.loaded { opacity: 1; }
+
+    .image-item .img-loader {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: var(--bg-secondary); z-index: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .image-item .img-loader.hidden { opacity: 0; pointer-events: none; }
+
+    .image-item .img-loader::after {
+      content: ''; width: 20px; height: 20px;
+      border: 2.5px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+
+    /* Preview */
+    .preview-area {
+      display: none; align-items: center; gap: 14px; padding: 14px;
+      background: var(--bg-secondary); border-radius: var(--radius);
+      margin-bottom: 16px; border: 1px solid var(--border);
+    }
+
+    .preview-area.visible { display: flex; }
+
+    .preview-img {
+      width: 64px; height: 64px; border-radius: 10px;
+      flex-shrink: 0; border: 2px solid var(--border);
+      object-fit: cover;
+    }
+
+    .preview-info { flex: 1; min-width: 0; }
+    .preview-info .name { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+    .preview-info .detail { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* Input */
+    .input-group { position: relative; margin-bottom: 16px; }
+
+    .input-group label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: var(--text-secondary); margin-bottom: 6px;
+    }
+
+    .input-wrapper { position: relative; }
+
+    .input-wrapper input {
+      width: 100%; padding: 14px 16px; padding-left: 44px;
+      font-size: 16px; font-family: 'Tajawal', sans-serif;
+      border: 1.5px solid var(--border); border-radius: var(--radius);
+      background: var(--bg-primary); color: var(--text-primary);
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-wrapper input:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .input-wrapper input::placeholder { color: var(--text-muted); }
+
+    .input-icon {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%); font-size: 16px; opacity: 0.5;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 14px 28px; font-size: 15px; font-weight: 700;
+      font-family: 'Tajawal', sans-serif; border: none;
+      border-radius: var(--radius); cursor: pointer;
+      transition: all 0.25s ease; width: 100%;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #8e44ad); color: white;
+      box-shadow: 0 4px 16px rgba(192, 57, 43, 0.3);
+    }
+
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(192, 57, 43, 0.4); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-secondary { background: var(--accent-secondary); color: white; box-shadow: var(--shadow-md); }
+    .btn-secondary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+    /* Result Box */
+    .result-box {
+      background: var(--code-bg); border-radius: var(--radius);
+      padding: 18px; margin-top: 16px; display: none;
+      animation: fadeInUp 0.3s ease-out;
+    }
+
+    .result-box.visible { display: block; }
+
+    .result-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 1px; color: #8888a0; margin-bottom: 8px;
+    }
+
+    .result-value {
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      color: var(--code-text); word-break: break-all;
+      line-height: 1.7; direction: ltr; text-align: left;
+    }
+
+    .result-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 12px 0; }
+
+    .key-highlight {
+      background: rgba(231, 76, 60, 0.15); padding: 10px 14px;
+      border-radius: 8px; border: 1px solid rgba(231, 76, 60, 0.25); margin-top: 8px;
+    }
+
+    .key-highlight .result-value { color: #ff8a80; font-size: 13px; font-weight: 500; }
+
+    .copy-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 10px; padding: 8px 14px; font-size: 12px;
+      font-weight: 600; font-family: 'Tajawal', sans-serif;
+      background: rgba(255,255,255,0.08); color: #ccc;
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+      cursor: pointer; transition: all 0.2s;
+    }
+
+    .copy-btn:hover { background: rgba(255,255,255,0.14); color: white; }
+
+    /* Textarea */
+    .textarea-field {
+      width: 100%; min-height: 90px; padding: 14px 16px;
+      font-size: 14px; font-family: 'JetBrains Mono', monospace;
+      border: 1.5px solid var(--border); border-radius: var(--radius);
+      background: var(--bg-primary); color: var(--text-primary);
+      outline: none; resize: vertical; direction: ltr; text-align: left;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .textarea-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+    .textarea-field::placeholder {
+      color: var(--text-muted); font-family: 'Tajawal', sans-serif;
+      direction: rtl; text-align: right;
+    }
+
+    /* Verify result */
+    .verify-badge {
+      display: none; align-items: center; gap: 10px; padding: 16px;
+      border-radius: var(--radius); margin-top: 16px;
+      font-weight: 700; font-size: 15px; animation: fadeInUp 0.3s ease-out;
+    }
+
+    .verify-badge.visible { display: flex; }
+
+    .verify-badge.success { background: var(--success-bg); color: var(--success); border: 1.5px solid var(--success); }
+    .verify-badge.failure { background: var(--error-bg); color: var(--error); border: 1.5px solid var(--error); }
+
+    .verify-badge .badge-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+
+    .verify-badge.success .badge-icon { background: rgba(39,174,96,0.15); }
+    .verify-badge.failure .badge-icon { background: rgba(192,57,43,0.15); }
+
+    /* Toast */
+    .toast-container {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      z-index: 1000; display: flex; flex-direction: column; gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      padding: 12px 20px; border-radius: 10px; font-size: 14px;
+      font-weight: 600; font-family: 'Tajawal', sans-serif;
+      box-shadow: var(--shadow-lg);
+      animation: toastIn 0.35s ease-out, toastOut 0.35s ease-in 2.5s forwards;
+      pointer-events: auto; display: flex; align-items: center; gap: 8px;
+    }
+
+    .toast.warning { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+    .dark .toast.warning { background: #3d3520; color: #ffc107; border-color: #665a2e; }
+    .toast.success { background: #d4edda; color: #155724; border: 1px solid #28a745; }
+    .dark .toast.success { background: #1a3325; color: #2ecc71; border-color: #2a5a3a; }
+    .toast.error { background: #f8d7da; color: #721c24; border: 1px solid #dc3545; }
+    .dark .toast.error { background: #3d1a1e; color: #e74c3c; border-color: #5a2a2e; }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: white; border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-12px); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .container { padding: 16px 12px 48px; }
+      .section { padding: 18px; }
+      .image-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+      .header h1 { font-size: 24px; }
+      .btn { padding: 12px 20px; font-size: 14px; }
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex; gap: 4px; background: var(--bg-secondary);
+      padding: 4px; border-radius: var(--radius); margin-bottom: 20px;
+    }
+
+    .tab {
+      flex: 1; padding: 12px; text-align: center; font-size: 14px;
+      font-weight: 700; font-family: 'Tajawal', sans-serif;
+      color: var(--text-muted); background: transparent;
+      border: none; border-radius: 10px; cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .tab.active { background: var(--bg-card); color: var(--accent); box-shadow: var(--shadow-sm); }
+    .tab:hover:not(.active) { color: var(--text-secondary); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Strength meter */
+    .strength-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+
+    .strength-fill {
+      height: 100%; border-radius: 2px;
+      transition: width 0.4s ease, background 0.4s ease; width: 0%;
+    }
+
+    .strength-text {
+      font-size: 11px; color: var(--text-muted);
+      margin-top: 4px; text-align: left; direction: ltr;
+    }
+
+    /* Image error state */
+    .image-item.error-state {
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg-secondary);
+    }
+
+    .image-item.error-state .err-icon {
+      font-size: 20px; opacity: 0.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-pattern"></div>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div class="container">
+    <div class="header">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>
+      </div>
+      <h1>Keynova Lock</h1>
+      <p>صورة + كلمة مرور = مفتاح فريد غير قابل للكسر</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="generate" onclick="switchTab('generate')">🔑 إنشاء مفتاح</button>
+      <button class="tab" data-tab="verify" onclick="switchTab('verify')">🔍 التحقق</button>
+    </div>
+
+    <!-- Generate Tab -->
+    <div id="tab-generate" class="tab-content active">
+      <div class="section">
+        <div class="section-title">
+          <span class="icon purple">🖼</span>
+          اختر صورة
+        </div>
+        <div class="image-grid" id="imageGrid"></div>
+        <div class="preview-area" id="previewArea">
+          <img class="preview-img" id="previewImg" src="" alt="Preview">
+          <div class="preview-info">
+            <div class="name" id="previewName">—</div>
+            <div class="detail" id="previewDetail">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          <span class="icon red">🔒</span>
+          كلمة المرور
+        </div>
+        <div class="input-group">
+          <label for="passwordGen">أدخل كلمة مرور قوية</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔑</span>
+            <input type="text" id="passwordGen" placeholder="أدخل كلمة المرور هنا..." oninput="updateStrength(this.value)">
+          </div>
+          <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+          <div class="strength-text" id="strengthText"></div>
+        </div>
+        <button class="btn btn-primary" id="generateBtn" onclick="generateKey()">
+          🔐 إنشاء المفتاح
+        </button>
+      </div>
+
+      <div class="result-box" id="generateResult">
+        <div class="result-label">هاش الصورة (SHA-256)</div>
+        <div class="result-value" id="resImageHash">—</div>
+        <hr class="result-divider">
+        <div class="result-label">هاش كلمة المرور (SHA-256)</div>
+        <div class="result-value" id="resPasswordHash">—</div>
+        <hr class="result-divider">
+        <div class="result-label">🔑 المفتاح النهائي</div>
+        <div class="key-highlight">
+          <div class="result-value" id="resFinalKey">—</div>
+        </div>
+        <button class="copy-btn" onclick="copyKey()">📋 نسخ المفتاح</button>
+      </div>
+    </div>
+
+    <!-- Verify Tab -->
+    <div id="tab-verify" class="tab-content">
+      <div class="section">
+        <div class="section-title">
+          <span class="icon purple">🖼</span>
+          اختر نفس الصورة
+        </div>
+        <div class="image-grid" id="imageGridVerify"></div>
+        <div class="preview-area" id="previewAreaVerify">
+          <img class="preview-img" id="previewImgVerify" src="" alt="Preview">
+          <div class="preview-info">
+            <div class="name" id="previewNameVerify">—</div>
+            <div class="detail" id="previewDetailVerify">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          <span class="icon red">🔒</span>
+          كلمة المرور والمفتاح
+        </div>
+        <div class="input-group">
+          <label for="passwordVerify">أدخل نفس كلمة المرور</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔑</span>
+            <input type="text" id="passwordVerify" placeholder="أدخل كلمة المرور...">
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="keyInput">الصق المفتاح للتحقق</label>
+          <textarea class="textarea-field" id="keyInput" placeholder="الصق المفتاح النهائي هنا..."></textarea>
+        </div>
+        <button class="btn btn-secondary" id="verifyBtn" onclick="verifyKey()">
+          🔍 تحقق الآن
+        </button>
+      </div>
+
+      <div class="verify-badge" id="verifyBadge">
+        <div class="badge-icon" id="badgeIcon"></div>
+        <span id="badgeText"></span>
+      </div>
+
+      <div class="result-box" id="verifyResult">
+        <div class="result-label">المفتاح المُعاد توليده</div>
+        <div class="result-value" id="resRegeneratedKey">—</div>
+        <hr class="result-divider">
+        <div class="result-label">المفتاح المُدخل</div>
+        <div class="result-value" id="resInputKey">—</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* ============ Dark Mode Detection ============ */
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    document.documentElement.classList.add('dark');
+  }
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(event) {
+    if (event.matches) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  });
+
+  /* ============ Toast System ============ */
+  function showToast(message, type) {
+    type = type || 'warning';
+    var container = document.getElementById('toastContainer');
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    var icons = { warning: '⚠️', success: '✅', error: '❌' };
+    toast.textContent = (icons[type] || '') + ' ' + message;
+    container.appendChild(toast);
+    setTimeout(function() {
+      if (toast.parentNode) toast.remove();
+    }, 3000);
+  }
+
+  /* ============ Image Data ============ */
+  /*
+   * 24 images from picsum.photos with fixed IDs.
+   * Each ID always returns the exact same image bytes,
+   * so the SHA-256 hash is deterministic and reproducible.
+   */
+  var IMAGE_IDS = [
+    { id: 237, name: 'كلب صغير' },
+    { id: 219, name: 'غابة استوائية' },
+    { id: 201, name: 'نمر بري' },
+    { id: 200, name: 'جبال ثلجية' },
+    { id: 206, name: 'زهرة وردية' },
+    { id: 250, name: 'صقر جارح' },
+    { id: 244, name: 'مدينة قديمة' },
+    { id: 243, name: 'شلال ماء' },
+    { id: 240, name: 'طبيعة خضراء' },
+    { id: 256, name: 'بحيرة هادئة' },
+    { id: 257, name: 'غروب الشمس' },
+    { id: 260, name: 'جسر حجري' },
+    { id: 274, name: 'مناظر جبلية' },
+    { id: 281, name: 'أشجار الخريف' },
+    { id: 287, name: 'سماء ملونة' },
+    { id: 292, name: 'حقل أخضر' },
+    { id: 301, name: 'صخور بحرية' },
+    { id: 325, name: 'وادي أخضر' },
+    { id: 338, name: 'سحب بيضاء' },
+    { id: 342, name: 'طريق ريفي' },
+    { id: 349, name: 'مياه صافية' },
+    { id: 360, name: 'جبال ضبابية' },
+    { id: 370, name: 'قمم شاهقة' },
+    { id: 376, name: 'بحر هادئ' }
+  ];
+
+  var IMAGE_COUNT = IMAGE_IDS.length;
+  var imageBytesCache = {};
+  var selectedGenImage = null;
+  var selectedVerifyImage = null;
+
+  function getImageURL(index, size) {
+    size = size || 200;
+    return 'https://picsum.photos/id/' + IMAGE_IDS[index].id + '/' + size + '/' + size;
+  }
+
+  /* ============ Fetch image bytes for hashing ============ */
+  async function fetchImageBytes(index) {
+    if (imageBytesCache[index]) return imageBytesCache[index];
+
+    var url = getImageURL(index, 200);
+    var response = await fetch(url);
+    if (!response.ok) throw new Error('فشل تحميل الصورة');
+    var arrayBuffer = await response.arrayBuffer();
+    var bytes = new Uint8Array(arrayBuffer);
+    imageBytesCache[index] = bytes;
+    return bytes;
+  }
+
+  /* ============ Build Image Grid ============ */
+  function buildImageGrid(containerId, previewId, previewImgId, previewNameId, previewDetailId, mode) {
+    var container = document.getElementById(containerId);
+    container.innerHTML = '';
+
+    for (var i = 0; i < IMAGE_COUNT; i++) {
+      (function(idx) {
+        var item = document.createElement('div');
+        item.className = 'image-item';
+        item.dataset.index = idx;
+
+        // Loader
+        var loader = document.createElement('div');
+        loader.className = 'img-loader';
+        item.appendChild(loader);
+
+        // Image
+        var img = document.createElement('img');
+        img.className = 'loading';
+        img.alt = IMAGE_IDS[idx].name;
+        img.loading = 'lazy';
+        img.src = getImageURL(idx, 200);
+
+        img.addEventListener('load', function() {
+          img.classList.remove('loading');
+          img.classList.add('loaded');
+          loader.classList.add('hidden');
+        });
+
+        img.addEventListener('error', function() {
+          loader.classList.add('hidden');
+          item.classList.add('error-state');
+          var errIcon = document.createElement('span');
+          errIcon.className = 'err-icon';
+          errIcon.textContent = '🖼';
+          item.appendChild(errIcon);
+        });
+
+        item.appendChild(img);
+
+        item.addEventListener('click', function() {
+          if (item.classList.contains('error-state')) return;
+
+          container.querySelectorAll('.image-item').forEach(function(el) {
+            el.classList.remove('selected');
+          });
+          item.classList.add('selected');
+
+          if (mode === 'gen') {
+            selectedGenImage = idx;
+          } else {
+            selectedVerifyImage = idx;
+          }
+
+          // Update preview
+          var previewArea = document.getElementById(previewId);
+          previewArea.classList.add('visible');
+          document.getElementById(previewImgId).src = getImageURL(idx, 200);
+          document.getElementById(previewNameId).textContent = IMAGE_IDS[idx].name;
+          document.getElementById(previewDetailId).textContent = 'صورة #' + (idx + 1) + ' — معرّف: ' + IMAGE_IDS[idx].id;
+        });
+
+        container.appendChild(item);
+      })(i);
+    }
+  }
+
+  buildImageGrid('imageGrid', 'previewArea', 'previewImg', 'previewName', 'previewDetail', 'gen');
+  buildImageGrid('imageGridVerify', 'previewAreaVerify', 'previewImgVerify', 'previewNameVerify', 'previewDetailVerify', 'verify');
+
+  /* ============ Tabs ============ */
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+    document.querySelector('.tab[data-tab="' + tab + '"]').classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+  }
+
+  /* ============ Password Strength ============ */
+  function updateStrength(val) {
+    var fill = document.getElementById('strengthFill');
+    var text = document.getElementById('strengthText');
+    if (!val) {
+      fill.style.width = '0%';
+      text.textContent = '';
+      return;
+    }
+    var score = 0;
+    if (val.length >= 6) score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^a-zA-Z0-9]/.test(val)) score++;
+
+    var levels = [
+      { w: '20%', c: '#e74c3c', t: 'ضعيفة جداً' },
+      { w: '40%', c: '#e67e22', t: 'ضعيفة' },
+      { w: '60%', c: '#f39c12', t: 'متوسطة' },
+      { w: '80%', c: '#27ae60', t: 'قوية' },
+      { w: '100%', c: '#2ecc71', t: 'قوية جداً' }
+    ];
+    var level = levels[Math.min(score, levels.length - 1)];
+    fill.style.width = level.w;
+    fill.style.background = level.c;
+    text.textContent = level.t;
+    text.style.color = level.c;
+  }
+
+  /* ============ SHA-256 Hashing ============ */
+  async function sha256Hex(data) {
+    var buffer;
+    if (typeof data === 'string') {
+      buffer = new TextEncoder().encode(data);
+    } else if (data instanceof Uint8ClampedArray || data instanceof Uint8Array) {
+      buffer = data;
+    } else {
+      buffer = new Uint8Array(data);
+    }
+    var hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    var hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+  }
+
+  /* ============ Generate Key ============ */
+  async function generateKey() {
+    if (selectedGenImage === null) {
+      showToast('اختر صورة أولاً', 'warning');
+      return;
+    }
+    var password = document.getElementById('passwordGen').value.trim();
+    if (!password) {
+      showToast('أدخل كلمة المرور', 'warning');
+      return;
+    }
+
+    var btn = document.getElementById('generateBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> جاري التحميل والإنشاء...';
+
+    try {
+      var normalizedPassword = password.normalize('NFC');
+
+      // Fetch raw image bytes and hash them
+      var imageBytes = await fetchImageBytes(selectedGenImage);
+      var imageHash = await sha256Hex(imageBytes);
+      var passwordHash = await sha256Hex(normalizedPassword);
+      var finalKey = await sha256Hex(imageHash + passwordHash);
+
+      document.getElementById('resImageHash').textContent = imageHash;
+      document.getElementById('resPasswordHash').textContent = passwordHash;
+      document.getElementById('resFinalKey').textContent = finalKey;
+
+      var resultBox = document.getElementById('generateResult');
+      resultBox.classList.add('visible');
+      resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      showToast('تم إنشاء المفتاح بنجاح!', 'success');
+    } catch (err) {
+      showToast('حدث خطأ: ' + err.message, 'error');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '🔐 إنشاء المفتاح';
+  }
+
+  /* ============ Copy Key ============ */
+  function copyKey() {
+    var key = document.getElementById('resFinalKey').textContent;
+    if (!key || key === '—') return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(key).then(function() {
+        showToast('تم نسخ المفتاح!', 'success');
+      });
+    }
+  }
+
+  /* ============ Verify Key ============ */
+  async function verifyKey() {
+    if (selectedVerifyImage === null) {
+      showToast('اختر الصورة أولاً', 'warning');
+      return;
+    }
+    var password = document.getElementById('passwordVerify').value.trim();
+    var inputKey = document.getElementById('keyInput').value
+      .trim()
+      .replace(/\s+/g, '')
+      .replace(/[^a-fA-F0-9]/g, '');
+
+    if (!password) {
+      showToast('أدخل كلمة المرور', 'warning');
+      return;
+    }
+    if (!inputKey) {
+      showToast('الصق المفتاح للتحقق منه', 'warning');
+      return;
+    }
+
+    var btn = document.getElementById('verifyBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> جاري التحقق...';
+
+    try {
+      var normalizedPassword = password.normalize('NFC');
+
+      // Fetch raw image bytes and hash them
+      var imageBytes = await fetchImageBytes(selectedVerifyImage);
+      var imageHash = await sha256Hex(imageBytes);
+      var passwordHash = await sha256Hex(normalizedPassword);
+      var regeneratedKey = await sha256Hex(imageHash + passwordHash);
+
+      var match = regeneratedKey.toLowerCase() === inputKey.toLowerCase();
+
+      document.getElementById('resRegeneratedKey').textContent = regeneratedKey;
+      document.getElementById('resInputKey').textContent = inputKey;
+
+      var badge = document.getElementById('verifyBadge');
+      badge.className = 'verify-badge visible ' + (match ? 'success' : 'failure');
+      document.getElementById('badgeIcon').textContent = match ? '✅' : '❌';
+      document.getElementById('badgeText').textContent = match
+        ? 'المفتاح صحيح! التطابق مؤكد.'
+        : 'المفتاح غير مطابق! تحقق من الصورة وكلمة المرور.';
+
+      var resultBox = document.getElementById('verifyResult');
+      resultBox.classList.add('visible');
+      resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      showToast(match ? 'المفتاح صحيح!' : 'المفتاح غير مطابق', match ? 'success' : 'error');
+    } catch (err) {
+      showToast('حدث خطأ: ' + err.message, 'error');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '🔍 تحقق الآن';
+  }
+</script>
+</body>
+</html>
