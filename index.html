@@ -135,7 +135,7 @@
     /* Image Grid */
     .image-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+      grid-template-columns: repeat(7, 1fr);
       gap: 10px; margin-bottom: 16px;
     }
 
@@ -371,10 +371,14 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Responsive */
+    @media (max-width: 600px) {
+      .image-grid { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    }
+
     @media (max-width: 480px) {
       .container { padding: 16px 12px 48px; }
       .section { padding: 18px; }
-      .image-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+      .image-grid { grid-template-columns: repeat(4, 1fr); gap: 7px; }
       .header h1 { font-size: 24px; }
       .btn { padding: 12px 20px; font-size: 14px; }
     }
@@ -575,54 +579,27 @@
 
   /* ============ Image Data ============ */
   /*
-   * 24 images from picsum.photos with fixed IDs.
-   * Each ID always returns the exact same image bytes,
+   * 28 images hosted on GitHub Pages: alkasm1.github.io/Api2/images/
+   * Each image file (image1.jpeg to image28.jpeg) always returns the same bytes,
    * so the SHA-256 hash is deterministic and reproducible.
    */
-  var IMAGE_IDS = [
-    { id: 237, name: 'كلب صغير' },
-    { id: 219, name: 'غابة استوائية' },
-    { id: 201, name: 'نمر بري' },
-    { id: 200, name: 'جبال ثلجية' },
-    { id: 206, name: 'زهرة وردية' },
-    { id: 250, name: 'صقر جارح' },
-    { id: 244, name: 'مدينة قديمة' },
-    { id: 243, name: 'شلال ماء' },
-    { id: 240, name: 'طبيعة خضراء' },
-    { id: 256, name: 'بحيرة هادئة' },
-    { id: 257, name: 'غروب الشمس' },
-    { id: 260, name: 'جسر حجري' },
-    { id: 274, name: 'مناظر جبلية' },
-    { id: 281, name: 'أشجار الخريف' },
-    { id: 287, name: 'سماء ملونة' },
-    { id: 292, name: 'حقل أخضر' },
-    { id: 301, name: 'صخور بحرية' },
-    { id: 325, name: 'وادي أخضر' },
-    { id: 338, name: 'سحب بيضاء' },
-    { id: 342, name: 'طريق ريفي' },
-    { id: 349, name: 'مياه صافية' },
-    { id: 360, name: 'جبال ضبابية' },
-    { id: 370, name: 'قمم شاهقة' },
-    { id: 376, name: 'بحر هادئ' }
-  ];
-
-  var IMAGE_COUNT = IMAGE_IDS.length;
+  var BASE_URL = 'https://alkasm1.github.io/Api2/images/';
+  var IMAGE_COUNT = 28;
   var imageBytesCache = {};
   var selectedGenImage = null;
   var selectedVerifyImage = null;
 
-  function getImageURL(index, size) {
-    size = size || 200;
-    return 'https://picsum.photos/id/' + IMAGE_IDS[index].id + '/' + size + '/' + size;
+  function getImageURL(index) {
+    return BASE_URL + 'image' + (index + 1) + '.jpeg';
   }
 
   /* ============ Fetch image bytes for hashing ============ */
   async function fetchImageBytes(index) {
     if (imageBytesCache[index]) return imageBytesCache[index];
 
-    var url = getImageURL(index, 200);
+    var url = getImageURL(index);
     var response = await fetch(url);
-    if (!response.ok) throw new Error('فشل تحميل الصورة');
+    if (!response.ok) throw new Error('فشل تحميل الصورة رقم ' + (index + 1));
     var arrayBuffer = await response.arrayBuffer();
     var bytes = new Uint8Array(arrayBuffer);
     imageBytesCache[index] = bytes;
@@ -648,9 +625,9 @@
         // Image
         var img = document.createElement('img');
         img.className = 'loading';
-        img.alt = IMAGE_IDS[idx].name;
+        img.alt = 'صورة ' + (idx + 1);
         img.loading = 'lazy';
-        img.src = getImageURL(idx, 200);
+        img.src = getImageURL(idx);
 
         img.addEventListener('load', function() {
           img.classList.remove('loading');
@@ -686,9 +663,9 @@
           // Update preview
           var previewArea = document.getElementById(previewId);
           previewArea.classList.add('visible');
-          document.getElementById(previewImgId).src = getImageURL(idx, 200);
-          document.getElementById(previewNameId).textContent = IMAGE_IDS[idx].name;
-          document.getElementById(previewDetailId).textContent = 'صورة #' + (idx + 1) + ' — معرّف: ' + IMAGE_IDS[idx].id;
+          document.getElementById(previewImgId).src = getImageURL(idx);
+          document.getElementById(previewNameId).textContent = 'صورة #' + (idx + 1);
+          document.getElementById(previewDetailId).textContent = 'image' + (idx + 1) + '.jpeg';
         });
 
         container.appendChild(item);
